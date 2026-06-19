@@ -3,10 +3,7 @@ import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
-
 import { JwtService } from '@nestjs/jwt';
-
-
 import { LoginDto } from './dto/login.dto';
 
 
@@ -81,6 +78,16 @@ export class AuthService {
     }
 
     async getMe(userId: string) {
-        return this.usersService.findById(userId);
+        const user = await this.usersService.findById(userId);
+
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        };
     }
 }

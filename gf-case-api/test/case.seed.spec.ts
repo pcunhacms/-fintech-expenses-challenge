@@ -4,7 +4,7 @@ import request from 'supertest';
 
 import { AppModule } from '../src/app.module';
 
-describe('CASE SEED E2E', () => {
+describe('CASE SEED E2E - REAL DATA', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -21,20 +21,18 @@ describe('CASE SEED E2E', () => {
     await app.close();
   });
 
-  it('seed completo: user + categorias + 55 transações', async () => {
-    const email = 'case@test.com';
+  it('seed completo com dados para visualizacao', async () => {
+    const email = 'admin@case.com';
     const password = '123456';
 
-    
     await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        name: 'Case User',
+        name: 'Admin Case',
         email,
         password,
       });
 
-    
     const loginRes = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email, password });
@@ -45,13 +43,9 @@ describe('CASE SEED E2E', () => {
       Authorization: `Bearer ${token}`,
     };
 
-    
     const categories: Record<string, string> = {};
 
-    const createCategory = async (
-      name: string,
-      description: string,
-    ) => {
+    const createCategory = async (name: string, description: string) => {
       const res = await request(app.getHttpServer())
         .post('/categories')
         .set(auth)
@@ -60,27 +54,17 @@ describe('CASE SEED E2E', () => {
       categories[name] = res.body.id;
     };
 
-    await createCategory(
-      'Alimentação',
-      'Gastos com mercado e comida',
-    );
+    await createCategory('Salário', 'Entrada principal do trabalho CLT');
+    await createCategory('Freelance', 'Projetos extras e renda variável');
+    await createCategory('Investimentos', 'Dividendos e rendimentos');
+    await createCategory('Alimentação', 'Mercado, restaurantes e delivery');
+    await createCategory('Transporte', 'Uber, gasolina, ônibus');
+    await createCategory('Moradia', 'Aluguel, contas de casa');
+    await createCategory('Lazer', 'Rolês, cinema, viagens');
+    await createCategory('Saúde', 'Farmácia e consultas');
+    await createCategory('Assinaturas', 'Netflix, Spotify, SaaS');
+    await createCategory('Imprevistos', 'Gastos inesperados');
 
-    await createCategory(
-      'Transporte',
-      'Uber, ônibus e locomoção',
-    );
-
-    await createCategory(
-      'Fornecedor',
-      'Pagamentos para fornecedores',
-    );
-
-    await createCategory(
-      'Receita de Cliente',
-      'Entradas de serviços e contratos',
-    );
-
-    
     const makeDate = (daysAgo: number) => {
       const d = new Date();
       d.setDate(d.getDate() - daysAgo);
@@ -88,23 +72,28 @@ describe('CASE SEED E2E', () => {
     };
 
     const incomeDescriptions = [
-      'Pagamento cliente',
-      'Projeto entregue',
-      'Consultoria',
-      'Contrato mensal',
-      'Serviço recorrente',
+      'Pagamento salário',
+      'Projeto freelance React',
+      'Consultoria tech',
+      'Venda de serviço',
+      'Rendimento investimento',
     ];
 
     const expenseDescriptions = [
-      'Uber reunião',
-      'Mercado semanal',
-      'Fornecedor API',
-      'Almoço cliente',
-      'Compra insumo',
+      'Uber para reunião',
+      'Mercado do mês',
+      'Almoço fora',
+      'Netflix mensalidade',
+      'Spotify Premium',
+      'Farmácia',
+      'Combustível',
+      'Delivery iFood',
+      'Cinema final de semana',
+      'Conta de luz',
     ];
 
-    
-    for (let i = 0; i < 30; i++) {
+
+    for (let i = 0; i < 40; i++) {
       await request(app.getHttpServer())
         .post('/transactions')
         .set(auth)
@@ -112,21 +101,29 @@ describe('CASE SEED E2E', () => {
           description:
             incomeDescriptions[i % incomeDescriptions.length] +
             ` #${i + 1}`,
-          value: Math.floor(Math.random() * 2500 + 500),
+          value: Math.floor(Math.random() * 5000 + 2000),
           type: 'INCOME',
-          categoryId: categories['Receita de Cliente'],
+          categoryId:
+            i % 3 === 0
+              ? categories['Salário']
+              : i % 3 === 1
+              ? categories['Freelance']
+              : categories['Investimentos'],
           date: makeDate(i),
         });
     }
 
-    
     const expenseCategories = [
       'Alimentação',
       'Transporte',
-      'Fornecedor',
+      'Moradia',
+      'Lazer',
+      'Saúde',
+      'Assinaturas',
+      'Imprevistos',
     ];
 
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 60; i++) {
       const category =
         expenseCategories[i % expenseCategories.length];
 
@@ -137,14 +134,13 @@ describe('CASE SEED E2E', () => {
           description:
             expenseDescriptions[i % expenseDescriptions.length] +
             ` #${i + 1}`,
-          value: Math.floor(Math.random() * 600 + 50),
+          value: Math.floor(Math.random() * 800 + 30),
           type: 'EXPENSE',
           categoryId: categories[category],
           date: makeDate(i),
         });
     }
 
-   
     const dashboard = await request(app.getHttpServer())
       .get('/dashboard')
       .set(auth);
@@ -158,8 +154,6 @@ describe('CASE SEED E2E', () => {
 
     expect(dashboard.body.totalIncome).toBeGreaterThan(0);
     expect(dashboard.body.totalExpense).toBeGreaterThan(0);
-    expect(dashboard.body.topCategories.length).toBeGreaterThan(
-      0,
-    );
+    expect(dashboard.body.topCategories.length).toBeGreaterThan(0);
   });
 });

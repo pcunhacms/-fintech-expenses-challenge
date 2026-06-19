@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
 
 import { getDashboard } from "../../api/dashboard";
 import type { DashboardData } from "../../types/dashboard";
+import DashboardCard from "../../components/Dashboard/DashboardCard";
+import DashboardChart from "../../components/Dashboard/DashboardChart";
 
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
 
   useEffect(() => {
     async function load() {
@@ -48,7 +47,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 p-6">
 
-      {/* HEADER */}
+
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">
           Dashboard
@@ -58,84 +57,32 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* CARDS */}
+
       <div className="grid gap-4 md:grid-cols-3">
+        <DashboardCard
+          label="Saldo atual"
+          value={formatCurrency(data.balance)}
+          variant={data.balance >= 0 ? "default" : "danger"}
+        />
 
-        <div className="rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md">
-          <p className="text-sm text-muted-foreground">
-            Saldo atual
-          </p>
-          <p
-            className={`mt-2 text-2xl font-semibold ${
-              data.balance >= 0
-                ? "text-blue-600"
-                : "text-red-600"
-            }`}
-          >
-            R$ {Number(data.balance).toFixed(2)}
-          </p>
-        </div>
+        <DashboardCard
+          label="Valor total de entrada"
+          value={formatCurrency(data.totalIncome)}
+          variant="success"
+        />
 
-        <div className="rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md">
-          <p className="text-sm text-muted-foreground">
-            Valor total de entrada
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-emerald-600">
-            R$ {Number(data.totalIncome).toFixed(2)}
-          </p>
-        </div>
-
-        <div className="rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md">
-          <p className="text-sm text-muted-foreground">
-            Valor total de saída
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-red-600">
-            R$ {Number(data.totalExpense).toFixed(2)}
-          </p>
-        </div>
+        <DashboardCard
+          label="Valor total de saída"
+          value={formatCurrency(data.totalExpense)}
+          variant="danger"
+        />
       </div>
 
-      {/* CHART */}
+      
       <div className="rounded-xl border bg-white p-6 shadow-sm">
-        <div className="mb-6">
-          <h2 className="text-base font-semibold">
-            Categorias com maior volume de saída
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Top 3 categorias do período
-          </p>
-        </div>
+        
 
-        <div className="h-[320px] md:h-[420px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.topCategories}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-              <XAxis
-                dataKey="category"
-                tick={{ fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip
-                cursor={{ fill: "rgba(0,0,0,0.04)" }}
-                formatter={(value) => [
-                  `R$ ${Number(value).toFixed(2)}`,
-                  "Total",
-                ]}
-              />
-              <Bar
-                dataKey="total"
-                fill="#4b1cf7"
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <DashboardChart data={data.topCategories} />
       </div>
     </div>
   );

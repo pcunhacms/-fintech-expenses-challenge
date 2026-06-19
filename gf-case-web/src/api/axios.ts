@@ -18,7 +18,10 @@ async function request<T>(
   const data = await response.json(); 
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    throw {
+      status: response.status,
+      data,
+    }
   }
 
   return data as T;
