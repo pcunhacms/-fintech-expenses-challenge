@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+
 import {
     getCategories,
     createCategory,
@@ -12,9 +13,11 @@ import CreateCategoryModal from "../../components/Categories/CreateCategoryModal
 import EditCategoryModal from "../../components/Categories/EditCategoryModal";
 import DeleteCategoryModal from "../../components/Categories/DeleteCategoryModal";
 
+import { useToast } from "../../hooks/useToats";
 export default function Categories() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
+    const toast = useToast();
 
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -41,9 +44,13 @@ export default function Categories() {
         name: string;
         description?: string;
     }) {
-        await createCategory(data);
-
-        await loadCategories();
+        try {
+            await createCategory(data);
+            await loadCategories();
+            toast.success("Categoria criada com sucesso!");
+        } catch (error) {
+            toast.error("Erro ao criar categoria.");
+        }
     }
 
     async function handleEditCategory(
@@ -53,20 +60,22 @@ export default function Categories() {
             description?: string;
         }
     ) {
-        await updateCategory(id, data);
-
-        await loadCategories();
+        try {
+            await updateCategory(id, data);
+             await loadCategories();
+             toast.success("Categoria atualizada com sucesso!");
+        } catch (error) {
+            toast.error("Erro ao atualizar categoria.");
+        }
     }
 
     async function handleDeleteCategory(id: string) {
         try {
             await deleteCategory(id);
-
             await loadCategories();
+            toast.success("Categoria excluída com sucesso!");
         } catch {
-            alert(
-                "Não foi possível excluir. Pode existir transação usando essa categoria."
-            );
+            toast.error("Erro ao excluir categoria.");
         }
     }
 
@@ -75,142 +84,123 @@ export default function Categories() {
     }, []);
 
     return (
-        <div className="p-8">
-            <div className="mb-8 flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold">
-                        Categorias
-                    </h1>
+  <div className="p-6 space-y-6">
+    {/* HEADER */}
+    <div className="flex items-start justify-between">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Categorias
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Organize suas categorias financeiras
+        </p>
+      </div>
 
-                    <p className="text-gray-500">
-                        Organize e gerencie suas categorias financeiras
-                    </p>
-                </div>
+      <button
+        onClick={() => setCreateModalOpen(true)}
+        className="inline-flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90"
+      >
+        + Nova categoria
+      </button>
+    </div>
 
-                <button
-                    onClick={() => setCreateModalOpen(true)}
-                    className="
-                        rounded-lg
-                        bg-blue-600
-                        px-4
-                        py-2
-                        font-medium
-                        text-white
-                        hover:bg-blue-700
-                    "
-                >
-                    + Nova Categoria
-                </button>
-            </div>
+    {/* TABLE */}
+    <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+      <div className="border-b px-4 py-3">
+        <p className="text-sm font-medium">Lista de categorias</p>
+      </div>
 
-            <div className="overflow-hidden rounded-xl border  bg-white shadow-sm">
-                <table className="w-full">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="px-4 py-3 text-left">
-                                Nome
-                            </th>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/40 text-left">
+            <tr>
+              <th className="p-3">Nome</th>
+              <th className="p-3">Descrição</th>
+              <th className="p-3 text-center">Ações</th>
+            </tr>
+          </thead>
 
-                            <th className="px-4 py-3 text-left">
-                                Descrição
-                            </th>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={3} className="p-6 text-center text-muted-foreground">
+                  Carregando categorias...
+                </td>
+              </tr>
+            ) : categories.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="p-6 text-center text-muted-foreground">
+                  Nenhuma categoria cadastrada
+                </td>
+              </tr>
+            ) : (
+              categories.map((c) => (
+                <tr key={c.id} className="border-t hover:bg-muted/30 transition">
+                  <td className="p-3 font-medium">
+                    {c.name}
+                  </td>
 
-                            <th className="px-4 py-3 text-center">
-                                Ações
-                            </th>
-                        </tr>
-                    </thead>
+                  <td className="p-3 text-muted-foreground">
+                    {c.description || "-"}
+                  </td>
 
-                    <tbody>
-                        {loading ? (
-                            <tr>
-                                <td
-                                    colSpan={3}
-                                    className="p-4 text-center"
-                                >
-                                    Carregando categorias...
-                                </td>
-                            </tr>
-                        ) : categories.length === 0 ? (
-                            <tr>
-                                <td
-                                    colSpan={3}
-                                    className="p-4 text-center"
-                                >
-                                    Nenhuma categoria cadastrada
-                                </td>
-                            </tr>
-                        ) : (
-                            categories.map((category) => (
-                                <tr
-                                    key={category.id}
-                                    className="border-t"
-                                >
-                                    <td className="px-4 py-3">
-                                        {category.name}
-                                    </td>
+                  <td className="p-3">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedCategory(c);
+                          setEditModalOpen(true);
+                        }}
+                        className="rounded-md border px-2 py-1 text-xs hover:bg-muted"
+                      >
+                        Editar
+                      </button>
 
-                                    <td className="px-4 py-3 text-gray-600">
-                                        {category.description || "-"}
-                                    </td>
+                      <button
+                        onClick={() => {
+                          setSelectedCategory(c);
+                          setDeleteModalOpen(true);
+                        }}
+                        className="rounded-md border border-red-200 px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-                                    <td className="px-4 py-3">
-                                        <div className="flex justify-center gap-2">
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedCategory(category);
-                                                    setEditModalOpen(true);
-                                                }}
-                                                className="
-                                                    rounded-md bg-yellow-500 px-3  py-1 text-sm
-                                                    text-white
-                                                    "
-                                            >
-                                                Editar
-                                            </button>
+    {/* MODALS */}
+    <CreateCategoryModal
+      open={createModalOpen}
+      onClose={() => setCreateModalOpen(false)}
+      onSubmit={handleCreateCategory}
+    />
 
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedCategory(category);
-                                                    setDeleteModalOpen(true);
-                                                }}
-                                                 className="rounded-md bg-red-600 px-3  py-1 text-sm text-white">
-                                                Excluir
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+    <EditCategoryModal
+      open={editModalOpen}
+      category={selectedCategory}
+      onClose={() => {
+        setEditModalOpen(false);
+        setSelectedCategory(null);
+      }}
+      onSubmit={handleEditCategory}
+    />
 
-            <CreateCategoryModal
-                open={createModalOpen}
-                onClose={() => setCreateModalOpen(false)}
-                onSubmit={handleCreateCategory}
-            />
-
-            <EditCategoryModal
-                open={editModalOpen}
-                category={selectedCategory}
-                onClose={() => {
-                    setEditModalOpen(false);
-                    setSelectedCategory(null);
-                }}
-                onSubmit={handleEditCategory}
-            />
-
-            <DeleteCategoryModal
-                open={deleteModalOpen}
-                category={selectedCategory}
-                onClose={() => {
-                    setDeleteModalOpen(false);
-                    setSelectedCategory(null);
-                }}
-                onConfirm={handleDeleteCategory}
-            />
-        </div>
-    );
+    <DeleteCategoryModal
+      open={deleteModalOpen}
+      category={selectedCategory}
+      onClose={() => {
+        setDeleteModalOpen(false);
+        setSelectedCategory(null);
+      }}
+      onConfirm={handleDeleteCategory}
+    />
+  </div>
+);
 }

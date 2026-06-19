@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Transaction } from '../transactions/entities/transaction.entity';
+import { Transaction, TransactionType } from '../transactions/entities/transaction.entity';
+import { DashboardResponseDto } from './dto/dashboard-response.dto';
 
 @Injectable()
 export class DashboardService {
@@ -10,7 +11,7 @@ export class DashboardService {
     private repo: Repository<Transaction>,
   ) {}
 
-  async getDashboard(userId: string) {
+  async getDashboard(userId: string): Promise<DashboardResponseDto> {
     const transactions = await this.repo.find({
       where: {
         user: { id: userId },
@@ -21,11 +22,11 @@ export class DashboardService {
     });
 
     const income = transactions
-      .filter(t => t.type === 'INCOME')
+      .filter(t => t.type === TransactionType.INCOME)
       .reduce((acc, t) => acc + Number(t.value), 0);
 
     const expense = transactions
-      .filter(t => t.type === 'EXPENSE')
+      .filter(t => t.type === TransactionType.EXPENSE)
       .reduce((acc, t) => acc + Number(t.value), 0);
 
     const balance = income - expense;
@@ -34,7 +35,7 @@ export class DashboardService {
     const categoryMap: Record<string, number> = {};
 
     transactions
-      .filter(t => t.type === 'EXPENSE')
+      .filter(t => t.type === TransactionType.EXPENSE)
       .forEach(t => {
         const name = t.category.name;
 

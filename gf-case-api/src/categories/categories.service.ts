@@ -13,12 +13,12 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private repo: Repository<Category>,
-  ) {}
+  ) { }
 
   create(dto: CreateCategoryDto, userId: string) {
     return this.repo.save({
       ...dto,
-      user: { id: userId } as any,
+      user: { id: userId },
     });
   }
 
@@ -30,13 +30,18 @@ export class CategoriesService {
 
   async findOne(id: string, userId: string) {
     const category = await this.repo.findOne({
-      where: { id },
+      where: {
+        id,
+        user: { id: userId },
+      },
       relations: {
         user: true,
       },
     });
 
-    if (!category || category.user.id !== userId) {
+
+
+    if (!category) {
       throw new ForbiddenException('Access denied');
     }
 

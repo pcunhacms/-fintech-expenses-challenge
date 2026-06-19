@@ -1,10 +1,14 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Transaction } from './entities/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { TransactionQueryDto } from './dto/transaction-query.dto';
+
+import { Category } from '../categories/entities/category.entity';
+
 @Injectable()
 
 export class TransactionsService {
@@ -13,22 +17,22 @@ export class TransactionsService {
     @InjectRepository(Transaction)
     private repo: Repository<Transaction>,
 
-  ) {}
+  ) { }
 
   create(dto: CreateTransactionDto, userId: string) {
     return this.repo.save({
       description: dto.description,
       value: dto.value,
       type: dto.type,
-      date: dto.date,
-      category: { id: dto.categoryId } as any,
-      user: { id: userId } as any,
+      date: new Date(dto.date),
+      category: { id: dto.categoryId },
+      user: { id: userId },
 
     });
 
   }
 
-  async findAll(userId: string, query: any) {
+  async findAll(userId: string, query: TransactionQueryDto) {
 
     const {
       page = 1,
@@ -51,7 +55,7 @@ export class TransactionsService {
     }
 
     if (categoryId) {
-     qb.andWhere('category.id = :categoryId', { categoryId });
+      qb.andWhere('category.id = :categoryId', { categoryId });
 
     }
 
@@ -88,19 +92,22 @@ export class TransactionsService {
       .getOne();
 
     if (!tx) {
-      throw new ForbiddenException('Access denied');
+      throw new NotFoundException('Transaction not found');
     }
-    return tx; 
+    return tx;
 
-    }
+  }
 
   async update(id: string, dto: UpdateTransactionDto, userId: string) {
     const transaction = await this.findOne(id, userId);
     Object.assign(transaction, dto);
 
-    if (dto.categoryId) {
-      transaction.category = { id: dto.categoryId } as any;
 
+
+    if (dto.categoryId) {
+      transaction.category = this.repo.manager.getRepository(Category).create({
+        id: dto.categoryId,
+      });
     }
     return this.repo.save(transaction);
 

@@ -55,98 +55,76 @@ export default function CreateTransactionModal({
     return null;
   }
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-xl font-bold">
-          Nova Transação
-        </h2>
+ return (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="w-full max-w-md rounded-xl border bg-white p-6 shadow-xl">
+      
+      <h2 className="mb-5 text-xl font-semibold tracking-tight">
+        Nova Transação
+      </h2>
 
-        <div className="space-y-3">
-          <input
-            placeholder="Descrição"
-            value={description}
-            onChange={(e) =>
-              setDescription(e.target.value)
-            }
-            className="w-full rounded-lg border p-2"
-          />
+      <div className="space-y-3">
+        <input
+          placeholder="Descrição"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+        />
 
-          <input
-            type="number"
-            placeholder="Valor"
-            value={value}
-            onChange={(e) =>
-              setValue(e.target.value)
-            }
-            className="w-full rounded-lg border p-2"
-          />
+        <input
+          type="number"
+          placeholder="Valor"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+        />
 
-          <select
-            value={type}
-            onChange={(e) =>
-              setType(
-                e.target.value as TransactionType
-              )
-            }
-            className="w-full rounded-lg border p-2 text-black"
-          >
-            <option value="INCOME">
-              Entrada
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value as TransactionType)}
+          className="h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+        >
+          <option value="INCOME">Entrada</option>
+          <option value="EXPENSE">Saída</option>
+        </select>
+
+        <select
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          className="h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+        >
+          <option value="">Selecione uma categoria</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
             </option>
+          ))}
+        </select>
 
-            <option value="EXPENSE">
-              Saída
-            </option>
-          </select>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+        />
+      </div>
 
-          <select
-            value={categoryId}
-            onChange={(e) =>
-              setCategoryId(e.target.value)
-            }
-            className="w-full rounded-lg border p-2 text-black"
-          >
-            <option value="">
-              Selecione uma categoria
-            </option>
+      <div className="mt-6 flex justify-end gap-2">
+        <button
+          onClick={onClose}
+          className="h-9 rounded-md border px-4 text-sm hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
 
-            {categories.map((category) => (
-              <option
-                key={category.id}
-                value={category.id}
-              >
-                {category.name}
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="date"
-            value={date}
-            onChange={(e) =>
-              setDate(e.target.value)
-            }
-            className="w-full rounded-lg border p-2"
-          />
-        </div>
-
-        <div className="mt-6 flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="rounded-lg border px-4 py-2"
-          >
-            Cancelar
-          </button>
-
-          <button
-            onClick={handleSubmit}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white"
-          >
-            Salvar
-          </button>
-        </div>
+        <button
+          onClick={handleSubmit}
+          className="h-9 rounded-md bg-black px-4 text-sm text-white hover:bg-black/90"
+        >
+          Salvar
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
 }

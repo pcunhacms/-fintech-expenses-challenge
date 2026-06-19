@@ -69,9 +69,10 @@ export default function EditTransactionModal({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-xl font-bold">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-xl border bg-white p-6 shadow-xl">
+
+        <h2 className="mb-5 text-xl font-semibold tracking-tight">
           Editar Transação
         </h2>
 
@@ -79,57 +80,36 @@ export default function EditTransactionModal({
           <input
             placeholder="Descrição"
             value={description}
-            onChange={(e) =>
-              setDescription(e.target.value)
-            }
-            className="w-full rounded-lg border p-2"
+            onChange={(e) => setDescription(e.target.value)}
+            className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
           />
 
           <input
             type="number"
             placeholder="Valor"
             value={value}
-            onChange={(e) =>
-              setValue(e.target.value)
-            }
-            className="w-full rounded-lg border p-2"
+            onChange={(e) => setValue(e.target.value)}
+            className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
           />
 
           <select
             value={type}
-            onChange={(e) =>
-              setType(
-                e.target.value as TransactionType
-              )
-            }
-            className="w-full rounded-lg border p-2 text-black"
+            onChange={(e) => setType(e.target.value as TransactionType)}
+            className="h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
           >
-            <option value="INCOME">
-              Entrada
-            </option>
-
-            <option value="EXPENSE">
-              Saída
-            </option>
+            <option value="INCOME">Entrada</option>
+            <option value="EXPENSE">Saída</option>
           </select>
 
           <select
             value={categoryId}
-            onChange={(e) =>
-              setCategoryId(e.target.value)
-            }
-            className="w-full rounded-lg border p-2 text-black"
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
           >
-            <option value="">
-              Selecione uma categoria
-            </option>
-
-            {categories.map((category) => (
-              <option
-                key={category.id}
-                value={category.id}
-              >
-                {category.name}
+            <option value="">Selecione uma categoria</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
               </option>
             ))}
           </select>
@@ -137,26 +117,24 @@ export default function EditTransactionModal({
           <input
             type="date"
             value={date}
-            onChange={(e) =>
-              setDate(e.target.value)
-            }
-            className="w-full rounded-lg border p-2"
+            onChange={(e) => setDate(e.target.value)}
+            className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
           />
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border px-4 py-2"
+            className="h-9 rounded-md border px-4 text-sm hover:bg-gray-50"
           >
             Cancelar
           </button>
 
           <button
             onClick={handleUpdate}
-            className="rounded-lg bg-yellow-500 px-4 py-2 text-white"
+            className="h-9 rounded-md bg-black px-4 text-sm text-white hover:bg-black/90"
           >
-            Salvar Alterações
+            Salvar alterações
           </button>
         </div>
       </div>

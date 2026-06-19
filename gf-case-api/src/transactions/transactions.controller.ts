@@ -15,6 +15,7 @@ import { TransactionsService } from './transactions.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { TransactionQueryDto } from './dto/transaction-query.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('transactions')
@@ -22,7 +23,8 @@ export class TransactionsController {
   constructor(private service: TransactionsService) {}
 
   @Get()
-  findAll(@Req() req: any, @Query() query: any) {
+  findAll(
+  @Req() req: any, @Query() query: TransactionQueryDto,) {
     return this.service.findAll(req.user.userId, query);
   }
 

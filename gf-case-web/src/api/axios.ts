@@ -1,6 +1,9 @@
 const BASE_URL = "http://localhost:3000";
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
   const token = localStorage.getItem("token");
 
   const response = await fetch(`${BASE_URL}${path}`, {
@@ -12,11 +15,13 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     },
   });
 
+  const data = await response.json(); 
+
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`);
   }
 
-  return response.json() as Promise<T>;
+  return data as T;
 }
 
 const api = {
@@ -44,5 +49,5 @@ const api = {
     });
   },
 };
-        
+
 export default api;

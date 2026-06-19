@@ -1,11 +1,11 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
 
-import { JwtService } from '@nestjs/jwt'; 
-import { UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+
 
 import { LoginDto } from './dto/login.dto';
 
@@ -15,7 +15,7 @@ export class AuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
-    ) {}
+    ) { }
 
     async register(registerDto: RegisterDto) {
         const userExists = await this.usersService.findByEmail(
@@ -62,19 +62,25 @@ export class AuthService {
             user.password
         );
 
-        if (!passwordMatch){
+        if (!passwordMatch) {
             throw new UnauthorizedException(
                 'Email ou senha inválidos',
             );
         }
 
-        const payload = {
-            sub: user.id,
-            email: user.email,
-        };
+        const payload = { sub: user.id, email: user.email };
 
         return {
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+            },
             access_token: this.jwtService.sign(payload),
-        }
+        };
+    }
+
+    async getMe(userId: string) {
+        return this.usersService.findById(userId);
     }
 }

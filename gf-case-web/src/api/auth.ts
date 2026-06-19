@@ -2,10 +2,12 @@ import api from "./axios";
 import type { LoginResponse, User } from "../types/auth";
 
 export async function loginRequest(email: string, password: string) {
-  return api.post<LoginResponse>("/auth/login", {
+  const response = await api.post<LoginResponse>("/auth/login", {
     email,
     password,
   });
+
+  return response;
 }
 
 export async function meRequest() {

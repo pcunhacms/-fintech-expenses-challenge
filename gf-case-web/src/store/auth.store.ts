@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { User } from "../types/auth";
 
-type AuthState = {
+ type AuthState = {
   token: string | null;
   user: User | null;
 };

@@ -31,7 +31,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="p-6 text-gray-500">
+      <div className="flex h-[60vh] items-center justify-center text-sm text-muted-foreground">
         Carregando dashboard...
       </div>
     );
@@ -39,46 +39,34 @@ export default function Dashboard() {
 
   if (!data) {
     return (
-      <div className="p-6 text-red-500">
-        Erro ao carregar dados
+      <div className="flex h-[60vh] items-center justify-center text-sm text-muted-foreground">
+        Sem dados para exibir
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold">
-        Dashboard Financeiro
-      </h1>
+    <div className="space-y-8 p-6">
 
+      {/* HEADER */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Visão geral das suas finanças
+        </p>
+      </div>
+
+      {/* CARDS */}
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">
-            Total de Entradas
-          </p>
 
-          <p className="mt-2 text-2xl font-bold text-green-600">
-            R$ {Number(data.totalIncome).toFixed(2)}
+        <div className="rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md">
+          <p className="text-sm text-muted-foreground">
+            Saldo atual
           </p>
-        </div>
-
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">
-            Total de Saídas
-          </p>
-
-          <p className="mt-2 text-2xl font-bold text-red-600">
-            R$ {Number(data.totalExpense).toFixed(2)}
-          </p>
-        </div>
-
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">
-            Saldo Atual
-          </p>
-
           <p
-            className={`mt-2 text-2xl font-bold ${
+            className={`mt-2 text-2xl font-semibold ${
               data.balance >= 0
                 ? "text-blue-600"
                 : "text-red-600"
@@ -87,38 +75,67 @@ export default function Dashboard() {
             R$ {Number(data.balance).toFixed(2)}
           </p>
         </div>
+
+        <div className="rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md">
+          <p className="text-sm text-muted-foreground">
+            Valor total de entrada
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-emerald-600">
+            R$ {Number(data.totalIncome).toFixed(2)}
+          </p>
+        </div>
+
+        <div className="rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md">
+          <p className="text-sm text-muted-foreground">
+            Valor total de saída
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-red-600">
+            R$ {Number(data.totalExpense).toFixed(2)}
+          </p>
+        </div>
       </div>
 
+      {/* CHART */}
       <div className="rounded-xl border bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold">
-          Top 3 Categorias com Maior Volume de Saídas
-        </h2>
+        <div className="mb-6">
+          <h2 className="text-base font-semibold">
+            Categorias com maior volume de saída
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Top 3 categorias do período
+          </p>
+        </div>
 
-        <ResponsiveContainer
-          width="100%"
-          height={320}
-        >
-          <BarChart data={data.topCategories}>
-            <CartesianGrid strokeDasharray="3 3" />
-
-            <XAxis dataKey="category" />
-
-            <YAxis />
-
-            <Tooltip
-              formatter={(value) => [
-                `R$ ${Number(value).toFixed(2)}`,
-                "Total",
-              ]}
-            />
-
-            <Bar
-              dataKey="total"
-              fill="#ef4444"
-              radius={[6, 6, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="h-[320px] md:h-[420px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data.topCategories}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis
+                dataKey="category"
+                tick={{ fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                formatter={(value) => [
+                  `R$ ${Number(value).toFixed(2)}`,
+                  "Total",
+                ]}
+              />
+              <Bar
+                dataKey="total"
+                fill="#4b1cf7"
+                radius={[8, 8, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

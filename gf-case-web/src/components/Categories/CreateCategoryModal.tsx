@@ -38,54 +38,74 @@ export default function CreateCategoryModal({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">
-          Nova Categoria
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    
+    <div className="w-full max-w-md rounded-lg border bg-white shadow-xl">
+
+     
+      <div className="border-b px-6 py-4">
+        <h2 className="text-base font-semibold tracking-tight">
+          Nova categoria
         </h2>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <p className="mt-1 text-sm text-muted-foreground">
+          Crie uma categoria para organizar suas transações
+        </p>
+      </div>
+
+      
+      <form onSubmit={handleSubmit} className="space-y-4 p-6">
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium leading-none">
+            Nome
+          </label>
+
           <input
             type="text"
-            placeholder="Nome"
+            placeholder="Ex: Alimentação"
             value={name}
-            onChange={(event) =>
-              setName(event.target.value)
-            }
-            className="w-full rounded-lg border p-3"
+            onChange={(e) => setName(e.target.value)}
+            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium leading-none">
+            Descrição
+          </label>
 
           <textarea
-            placeholder="Descrição"
+            placeholder="Ex: Gastos com comida, mercado..."
             value={description}
-            onChange={(event) =>
-              setDescription(event.target.value)
-            }
-            className="w-full rounded-lg border p-3"
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
+        </div>
 
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border px-4 py-2"
-            >
-              Cancelar
-            </button>
+       
+        <div className="flex justify-end gap-2 pt-2">
+          
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm transition hover:bg-accent hover:text-accent-foreground"
+          >
+            Cancelar
+          </button>
 
-            <button
-              type="submit"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white"
-            >
-              Salvar
-            </button>
-          </div>
-        </form>
-      </div>
+          <button
+            type="submit"
+            className="h-9 rounded-md bg-primary px-3 text-sm text-primary-foreground shadow-sm transition hover:bg-primary/90"
+          >
+            Salvar
+          </button>
+
+        </div>
+
+      </form>
     </div>
-  );
+  </div>
+);
 }

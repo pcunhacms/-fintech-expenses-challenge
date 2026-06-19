@@ -58,54 +58,70 @@ export default function EditCategoryModal({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">
-          Editar Categoria
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="w-full max-w-md rounded-lg border bg-white shadow-lg">
+      
+      {/* HEADER */}
+      <div className="border-b px-5 py-4">
+        <h2 className="text-lg font-semibold">
+          Editar categoria
         </h2>
+        <p className="text-xs text-muted-foreground">
+          Atualize os dados da categoria
+        </p>
+      </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="space-y-4 p-5">
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Nome
+          </label>
+
           <input
             type="text"
-            placeholder="Nome"
+            placeholder="Ex: Alimentação"
             value={name}
-            onChange={(event) =>
-              setName(event.target.value)
-            }
-            className="w-full rounded-lg border p-3"
+            onChange={(e) => setName(e.target.value)}
+            className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Descrição
+          </label>
 
           <textarea
-            placeholder="Descrição"
+            placeholder="Ex: Gastos com mercado..."
             value={description}
-            onChange={(event) =>
-              setDescription(event.target.value)
-            }
-            className="w-full rounded-lg border p-3"
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-h-[90px] w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black/10"
           />
+        </div>
 
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border px-4 py-2"
-            >
-              Cancelar
-            </button>
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md border px-3 py-2 text-sm hover:bg-muted"
+          >
+            Cancelar
+          </button>
 
-            <button
-              type="submit"
-              className="rounded-lg bg-yellow-500 px-4 py-2 text-white"
-            >
-              Atualizar
-            </button>
-          </div>
-        </form>
-      </div>
+          <button
+            type="submit"
+            className="rounded-md bg-black px-3 py-2 text-sm text-white hover:bg-black/90"
+          >
+            Atualizar
+          </button>
+        </div>
+
+      </form>
     </div>
-  );
+  </div>
+);
 }

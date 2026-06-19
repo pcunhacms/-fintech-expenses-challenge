@@ -20,27 +20,27 @@ export class CategoriesController {
   constructor(private service: CategoriesService) {}
 
   @Post()
-  create(@Body() dto: CreateCategoryDto, @Req() req) {
+  create(@Body() dto: CreateCategoryDto, @Req() req: { user: { userId: string } }) {
     return this.service.create(dto, req.user.userId);
   }
 
   @Get()
-  findAll(@Req() req) {
+  findAll(@Req() req: { user: { userId: string } }) {
     return this.service.findAll(req.user.userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req) {
+  findOne(@Param('id') id: string, @Req() req: { user: { userId: string } }) {
     return this.service.findOne(id, req.user.userId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateCategoryDto, @Req() req) {
+  update(@Param('id') id: string, @Body() dto: UpdateCategoryDto, @Req() req: { user: { userId: string } }) {
     return this.service.update(id, dto, req.user.userId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req) {
+  remove(@Param('id') id: string, @Req() req: { user: { userId: string } }) {
     return this.service.remove(id, req.user.userId);
   }
 }
