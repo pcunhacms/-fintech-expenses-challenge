@@ -26,7 +26,7 @@ export function Sidebar({ user, onLogout }: Props) {
          ? "bg-gray-100 text-gray-900 font-medium"
          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
      }`;
-     console.log("dados do user", user)
+    
   return (
     <aside className="w-64 h-screen border-r bg-white flex flex-col">
 
