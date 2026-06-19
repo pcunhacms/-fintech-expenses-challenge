@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from './auth/auth.module';
@@ -12,18 +12,37 @@ import { DashboardModule } from './dashboard/dashboard.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
 
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = configService.get<string>('DATABASE_URL');
+        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        const shouldUseSsl =
+          Boolean(databaseUrl) ||
+          configService.get<string>('DB_SSL') === 'true' ||
+          configService.get<string>('DATABASE_URL')?.includes('sslmode=require') ||
+          isProduction;
 
-      autoLoadEntities: true,
-      synchronize: true,
+        return {
+          type: 'postgres' as const,
+          ...(databaseUrl
+            ? { url: databaseUrl }
+            : {
+                host: configService.get<string>('DB_HOST'),
+                port: Number(configService.get<string>('DB_PORT') || 5432),
+                username: configService.get<string>('DB_USER'),
+                password: configService.get<string>('DB_PASS'),
+                database: configService.get<string>('DB_NAME'),
+              }),
+          ssl: shouldUseSsl ? { rejectUnauthorized: false } : false,
+          autoLoadEntities: true,
+          synchronize: configService.get<string>('DB_SYNCHRONIZE') === 'true',
+        };
+      },
     }),
 
     AuthModule,

@@ -1,78 +1,83 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { loginRequest, meRequest } from "../../api/auth";
-import { authStore } from "../../store/auth.store";
+import { useAuthStore } from "../../store/auth.store";
 import { useToast } from "../../hooks/useToats";
 
 export default function LoginForm() {
-  const navigate = useNavigate();
-  const toast = useToast();
+    const navigate = useNavigate();
+    const toast = useToast();
+    const setAuth = useAuthStore((state) => state.setAuth);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleLogin(
-    e: React.FormEvent<HTMLFormElement>
-  ) {
-    e.preventDefault();
+    async function handleLogin(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
 
-    try {
-      const loginData = await loginRequest(email, password);
+        if (isSubmitting) return;
 
-      localStorage.setItem("token", loginData.access_token);
+        setIsSubmitting(true);
 
-      const user = await meRequest();
-      localStorage.setItem("user", JSON.stringify(user));
+        try {
+            const loginData = await loginRequest(email, password);
 
-      authStore.setState({
-        token: loginData.access_token,
-        user,
-      });
+            setAuth(loginData.access_token, loginData.user ?? {
+                id: "",
+                name: "",
+                email: "",
+            });
 
-      toast.success("Login realizado com sucesso");
-      navigate("/dashboard");
+            const user = await meRequest();
 
-      
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message ||
-          "Erro ao realizar login"
-      );
+            setAuth(loginData.access_token, user);
+
+            toast.success("Login realizado com sucesso");
+            navigate("/dashboard");
+        } catch {
+            toast.error("Erro ao efetuar login. Verifique e-mail e senha.");
+        } finally {
+            setIsSubmitting(false);
+        }
     }
-  }
 
-  return (
-    <form onSubmit={handleLogin} className="space-y-4">
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="h-10 w-full rounded-md border px-3 text-sm"
-      />
+    return (
+        <form onSubmit={handleLogin} className="space-y-4">
+            <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-10 w-full rounded-md border px-3 text-sm"
+            />
 
-      <input
-        type="password"
-        placeholder="Senha"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="h-10 w-full rounded-md border px-3 text-sm"
-      />
+            <input
+                type="password"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-10 w-full rounded-md border px-3 text-sm"
+            />
 
-      <button className="h-10 w-full rounded-md bg-black text-white text-sm">
-        Entrar
-      </button>
+            <button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-10 w-full rounded-md bg-black text-white text-sm disabled:cursor-not-allowed disabled:opacity-70"
+            >
+                {isSubmitting ? "Entrando..." : "Entrar"}
+            </button>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Não tem conta?{" "}
-        <span
-          onClick={() => navigate("/register")}
-          className="cursor-pointer text-primary hover:underline"
-        >
-          Registrar-se
-        </span>
-      </p>
-    </form>
-  );
+            <p className="text-center text-sm text-muted-foreground">
+                Não tem conta?{" "}
+                <span
+                    onClick={() => navigate("/register")}
+                    className="cursor-pointer text-primary hover:underline"
+                >
+                    Registrar-se
+                </span>
+            </p>
+        </form>
+    );
 }

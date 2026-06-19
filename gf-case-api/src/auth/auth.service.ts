@@ -81,7 +81,7 @@ export class AuthService {
         const user = await this.usersService.findById(userId);
 
         if (!user) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException('Usuário não encontrado');
         }
 
         return {

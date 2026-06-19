@@ -1,21 +1,15 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { authStore, useAuthStore } from "../store/auth.store";
+import { useAuthStore } from "../store/auth.store";
 
 import { Sidebar } from "../components/Sidebar";
 
 export function AppLayout() {
     const navigate = useNavigate();
     const user = useAuthStore((state) => state.user);
+    const logout = useAuthStore((state) => state.logout);
 
     function handleLogout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        authStore.setState({
-            token: null,
-            user: null,
-        });
-
+        logout();
         navigate("/login");
     }
 

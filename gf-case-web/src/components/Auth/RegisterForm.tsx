@@ -2,8 +2,6 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import type { AxiosError } from "axios";
-
 import { useToast } from "../../hooks/useToats";
 
 export default function RegisterForm() {

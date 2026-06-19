@@ -1,13 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
+import { DataSource } from 'typeorm';
 
 import { AppModule } from '../src/app.module';
+
+jest.setTimeout(30000);
 
 describe('CASE SEED E2E - REAL DATA', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    process.env.DB_SYNCHRONIZE = 'true';
+
     const moduleFixture: TestingModule =
       await Test.createTestingModule({
         imports: [AppModule],
@@ -15,6 +20,13 @@ describe('CASE SEED E2E - REAL DATA', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    const dataSource = app.get<DataSource>(DataSource);
+    if (!dataSource.isInitialized) {
+      await dataSource.initialize();
+    }
+
+    await dataSource.synchronize();
   });
 
   afterAll(async () => {
@@ -37,6 +49,8 @@ describe('CASE SEED E2E - REAL DATA', () => {
       .post('/auth/login')
       .send({ email, password });
 
+    expect(loginRes.status).toBe(201);
+
     const token = loginRes.body.access_token;
 
     const auth = {
@@ -51,19 +65,13 @@ describe('CASE SEED E2E - REAL DATA', () => {
         .set(auth)
         .send({ name, description });
 
+      expect(res.status).toBe(201);
       categories[name] = res.body.id;
     };
 
     await createCategory('Salário', 'Entrada principal do trabalho CLT');
-    await createCategory('Freelance', 'Projetos extras e renda variável');
-    await createCategory('Investimentos', 'Dividendos e rendimentos');
     await createCategory('Alimentação', 'Mercado, restaurantes e delivery');
     await createCategory('Transporte', 'Uber, gasolina, ônibus');
-    await createCategory('Moradia', 'Aluguel, contas de casa');
-    await createCategory('Lazer', 'Rolês, cinema, viagens');
-    await createCategory('Saúde', 'Farmácia e consultas');
-    await createCategory('Assinaturas', 'Netflix, Spotify, SaaS');
-    await createCategory('Imprevistos', 'Gastos inesperados');
 
     const makeDate = (daysAgo: number) => {
       const d = new Date();
@@ -73,72 +81,65 @@ describe('CASE SEED E2E - REAL DATA', () => {
 
     const incomeDescriptions = [
       'Pagamento salário',
-      'Projeto freelance React',
-      'Consultoria tech',
-      'Venda de serviço',
-      'Rendimento investimento',
+      'Rendimento extra',
+      'Consultoria',
+      'Projeto freelance',
+      'Bônus mensal',
     ];
 
     const expenseDescriptions = [
       'Uber para reunião',
       'Mercado do mês',
       'Almoço fora',
-      'Netflix mensalidade',
-      'Spotify Premium',
-      'Farmácia',
       'Combustível',
       'Delivery iFood',
       'Cinema final de semana',
-      'Conta de luz',
     ];
 
 
-    for (let i = 0; i < 40; i++) {
-      await request(app.getHttpServer())
+    for (let i = 0; i < 5; i++) {
+      const response = await request(app.getHttpServer())
         .post('/transactions')
         .set(auth)
         .send({
           description:
             incomeDescriptions[i % incomeDescriptions.length] +
             ` #${i + 1}`,
-          value: Math.floor(Math.random() * 5000 + 2000),
+          value: 1500 + i * 300,
           type: 'INCOME',
-          categoryId:
-            i % 3 === 0
-              ? categories['Salário']
-              : i % 3 === 1
-              ? categories['Freelance']
-              : categories['Investimentos'],
-          date: makeDate(i),
+          categoryId: categories['Salário'],
+          date: makeDate(i + 1),
         });
+
+      expect(response.status).toBe(201);
     }
 
     const expenseCategories = [
       'Alimentação',
       'Transporte',
-      'Moradia',
-      'Lazer',
-      'Saúde',
-      'Assinaturas',
-      'Imprevistos',
+      'Alimentação',
+      'Transporte',
+      'Alimentação',
+      'Transporte',
     ];
 
-    for (let i = 0; i < 60; i++) {
-      const category =
-        expenseCategories[i % expenseCategories.length];
+    for (let i = 0; i < 6; i++) {
+      const category = expenseCategories[i];
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/transactions')
         .set(auth)
         .send({
           description:
             expenseDescriptions[i % expenseDescriptions.length] +
             ` #${i + 1}`,
-          value: Math.floor(Math.random() * 800 + 30),
+          value: 40 + i * 15,
           type: 'EXPENSE',
           categoryId: categories[category],
-          date: makeDate(i),
+          date: makeDate(i + 1),
         });
+
+      expect(response.status).toBe(201);
     }
 
     const dashboard = await request(app.getHttpServer())

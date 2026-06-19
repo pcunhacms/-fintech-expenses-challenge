@@ -59,24 +59,25 @@ export class TransactionsService {
 
     }
 
-    if (startDate && endDate) {
-      qb.andWhere('t.date BETWEEN :startDate AND :endDate', {
-        startDate,
-        endDate,
-      });
+    if (startDate) {
+      qb.andWhere('t.date >= :startDate', { startDate });
+    }
 
+    if (endDate) {
+      qb.andWhere('t.date <= :endDate', { endDate });
     }
 
     qb.skip((pageNumber - 1) * limitNumber);
     qb.take(limitNumber);
 
     const [data, total] = await qb.getManyAndCount();
+    const lastPage = Math.max(1, Math.ceil(total / limitNumber));
+
     return {
       data,
       total,
       page: pageNumber,
-      lastPage: Math.ceil(total / limitNumber),
-
+      lastPage,
     };
 
   }
