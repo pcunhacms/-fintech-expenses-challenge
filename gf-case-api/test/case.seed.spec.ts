@@ -44,6 +44,7 @@ describe('CASE SEED E2E - REAL DATA', () => {
         email,
         password,
       });
+      
 
     const loginRes = await request(app.getHttpServer())
       .post('/auth/login')
