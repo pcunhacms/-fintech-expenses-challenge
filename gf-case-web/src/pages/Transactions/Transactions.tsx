@@ -39,17 +39,31 @@ export default function Transactions() {
     const [selectedTransaction, setSelectedTransaction] =
         useState<Transaction | null>(null);
 
-    async function loadTransactions(currentPage = 1) {
+    async function loadTransactions(
+        currentPage = 1,
+        filters?: {
+            type?: string;
+            categoryId?: string;
+            startDate?: string;
+            endDate?: string;
+        }
+    ) {
         try {
             setLoading(true);
 
             const response = await getTransactions({
                 page: currentPage,
                 limit: 10,
-                type: typeFilter ? (typeFilter as "INCOME" | "EXPENSE") : undefined,
-                categoryId: categoryFilter || undefined,
-                startDate: startDate || undefined,
-                endDate: endDate || undefined,
+
+                type: filters?.type
+                    ? (filters.type as "INCOME" | "EXPENSE")
+                    : undefined,
+
+                categoryId: filters?.categoryId || undefined,
+
+                startDate: filters?.startDate || undefined,
+
+                endDate: filters?.endDate || undefined,
             });
 
             setTransactions(response.data);
@@ -141,20 +155,23 @@ export default function Transactions() {
                 startDate={startDate}
                 endDate={endDate}
                 categories={categories}
-
                 onTypeChange={setTypeFilter}
                 onCategoryChange={setCategoryFilter}
                 onStartDateChange={setStartDate}
                 onEndDateChange={setEndDate}
-
                 onFilter={() => loadTransactions(1)}
-
                 onClear={() => {
                     setTypeFilter("");
                     setCategoryFilter("");
                     setStartDate("");
                     setEndDate("");
-                    setTimeout(() => loadTransactions(1), 0);
+
+                    loadTransactions(1, {
+                        type: "",
+                        categoryId: "",
+                        startDate: "",
+                        endDate: "",
+                    });
                 }}
             />
 

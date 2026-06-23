@@ -80,8 +80,6 @@ Configure as variáveis:
 
 ```env
 DATABASE_URL=postgresql://usuario:senha@host:porta/nome_do_banco
-DB_SSL=true
-DB_SYNCHRONIZE=false
 FRONTEND_URL=http://localhost:5173
 JWT_SECRET=seu_secret
 PORT=3000
@@ -213,6 +211,10 @@ Senha:
 ```
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 04d75da (fix: ajustando problema de carregamento das transactions depois de limpar os filtros aplicados)
 ## Observações
 
 * O frontend utiliza Zustand para gerenciamento de autenticação.
